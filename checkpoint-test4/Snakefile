@@ -1,0 +1,209 @@
+import pathlib
+import pandas as pd
+# from make_inputs import *
+
+
+# input files:
+
+# inputs/XR/A-2_xr.txt
+# inputs/XR/A-1_xr.txt
+
+# inputs/APERIO/A-2_aperio.txt
+# inputs/APERIO/A-1_aperio.txt
+
+# inputs/SHITRES/A-1_shitres.txt
+# inputs/SHITRES/A-2_shitres.txt
+
+
+
+# Caselists:
+
+# caselists/K2/APERIO_XR.csv
+# caselists/K2/APERIO_SHITRES.csv
+
+
+
+# - We got caselists with names 
+#       - FIXED_MOVING1.csv
+#       - FIXED_MOVING2.csv
+#               :
+#
+# - We want to run the rule run_scan_registration for all the pairs FIXED,MOVINGi
+#       - Want to output_MOVINGi 
+        
+
+FIXED = "APERIO"
+MOVING = ["XR", "SHITRES"]
+
+
+
+inputfiles = ["caselists/K2/APERIO_XR.csv", "caselists/K2/APERIO_SHITRES.csv"]
+
+
+
+def get_successes(wildcards):
+
+    ck_output  = checkpoints.process1.get(**wildcards).output[0]
+    #successes, = glob_wildcards(os.path.join(ck_output, "out_{case_id}.txt")) 
+    successes, = glob_wildcards(os.path.join(ck_output, "balle.txt")) 
+    print(successes) 
+
+    #return expand("output_{case_id}/out_{case_id}.txt", case_id=successes)
+    #return expand(os.path.join(ck_output, "out_{case_id}.txt"), case_id=successes)
+    return expand(os.path.join(ck_output, "balle.txt"), case_id=successes)
+
+
+    #return expand("output/out.txt", moving=MOVING)
+    #return expand("output_APERIO_{moving}/out.txt", moving=MOVING)
+
+
+    
+
+cases = ["A", "B", "C"]
+
+
+# rule all:
+#     input:
+#         # expand("output/out_{case_id}.txt", case_id=cases)
+#         get_successes
+#         # "output/out.txt"
+#         
+#
+#
+#
+#
+# # Keep only files with even numbers:
+# # checkpoint process1:
+#
+# checkpoint process1:
+#     input:
+#         #"caselists/K2/APERIO_{moving}.csv"
+#         "caselists/K2/APERIO_XR.csv"
+#     output:
+#         #directory("output_{case_id}"),
+#         directory("output_XR"),
+#         # "output/out_{case_id}.txt"
+#         # touch("output/out.txt")
+#
+#     # run:
+#     #     (pathlib.Path(output[0])/"out_A.txt").touch()
+#     #     (pathlib.Path(output[0])/"out_B.txt").touch()
+#     #     (pathlib.Path(output[0])/"out_C.txt").touch()
+#     params: 
+#         # sample = lambda w : w.case_id
+#
+#
+#     shell:
+#         '''
+#         mkdir {output}
+#         touch {output}/balle.txt
+#         '''
+#         # '''
+#         # touch {output}/out_{wildcards.case_id}.txt
+#         # '''
+#         #Path(output[0]).mkdir()
+#
+#         # df = pd.read_csv(input)
+#
+#         # outfile = pathlib.Path(output) / "out.txt"
+#         # touch(outfile)
+#
+#         # touch(output)
+
+
+
+
+
+
+# With rule, not checkpoint:
+rule all:
+    input:
+        expand("output/out_{case_id}.txt", case_id=cases)
+rule process1:
+    input:
+        "caselists/K2/APERIO_XR.csv"
+    output:
+        "output/out_{case_id}.txt"
+
+    params: 
+        sample = lambda w : w
+
+    shell:
+        '''
+        touch {output}
+        '''
+
+        
+
+
+
+
+
+
+
+
+# for f in map(pathlib.Path, input):
+#     fixed = f.stem.split("_")[0]
+#     moving = f.stem.split("_")[1]
+
+            
+
+
+
+
+            
+#             num = int(Path(f).stem)
+#         
+#             if num % 2 == 0:
+#                 
+#                 ting = Path(output[0])/Path(f).name
+#                 with open(ting, "w") as out:
+#                     out.write(str(num**2) + "\n")
+#
+#                 
+#
+# rule process2:
+#     input:
+#         "output1/{num}.txt"
+#     output:
+#         "output2/{num}.txt"
+#     run:
+#         # shell("mkdir output2 -p")
+#         with open(input[0], 'r') as f:
+#             num = eval(f.readline().strip())
+#         
+#         with open(output[0], 'w') as f:
+#             f.write(str(num)+"\n")
+#             
+#
+#
+#
+# rule process3:
+#     input:
+#         "output2/{num}.txt"
+#     output:
+#         "output3/{num}.txt"
+#     run:
+#         # shell("mkdir output2 -p")
+#         with open(input[0], 'r') as f:
+#             num = eval(f.readline().strip())
+#         
+#         with open(output[0], 'w') as f:
+#             f.write(str(num % 30)+"\n")
+#             
+#
+# rule collect:
+#     input:
+#         get_successes,
+#     output:
+#         "collected/sum.txt"
+#     run:
+#         sum = 0
+#         for inp in input:
+#             with open(inp, 'r') as f:
+#                 num = eval(f.readline().strip())
+#                 sum += num
+#
+#         with open(output[0], 'w') as f:
+#             f.write(str(sum) + "\n") 
+#

@@ -1,0 +1,35 @@
+
+import pandas as pd
+projects = ['A', 'B']
+
+
+# caselist = pd.DataFrame({'A': ['A/a1.txt', 'A/a2.txt'],
+#                          'B': ['B/b1.txt', 'B/b2.txt']})
+
+df_A = pd.DataFrame({'inputfiles': {'a1': 'A/a1.inp', 
+                                    'a2':'A/a2.inp'}})
+
+
+# df_B = pd.DataFrame({'inputfiles': {'b1': 'B/b1.inp', 
+#                                     'b2':'B/b2.inp'}})
+
+
+
+
+
+#
+#
+#
+# rule all:
+#     input:
+#         ['A/a1.out', 'A/a2.out']
+#
+#
+# rule process:
+#     input:
+#         
+#         
+#
+#
+#
+#

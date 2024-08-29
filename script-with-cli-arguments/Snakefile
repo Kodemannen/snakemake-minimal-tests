@@ -1,0 +1,37 @@
+from pathlib import Path
+
+# Make input files:
+inputfiles = [Path(f"input/{i}.txt") for i in range(10)]
+Path("input").mkdir(exist_ok=True)
+for f in inputfiles:
+    f.touch()
+
+
+def get_outputfiles(w):
+    nums = []
+    for f in inputfiles:
+        num = int(f.stem)
+        # nums.append(num*2)
+
+    outputfiles = expand("output/{n}.txt", n=nums)
+    return outputfiles
+
+
+# ting = get_outputfiles()
+
+
+rule all:
+    input:
+        get_outputfiles
+
+        
+
+
+rule process1:
+    input:
+        "input/{n}.txt"
+    output:
+        "output/{n}.txt"
+
+    script:
+        "script.py"

@@ -1,0 +1,10 @@
+
+rule my_rule:
+    # input:
+    #     "input_file.txt"
+    output:
+        "output_file.txt"
+    log:
+        "logs/my_rule.log"
+    script:
+        "script.py"

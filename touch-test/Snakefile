@@ -1,0 +1,16 @@
+
+
+
+datasets = ['A', 'B']
+
+rule all:
+    input:
+        expand('lok{d}.txt', d=datasets)
+
+rule makefiles:
+    output:
+        lok='lok{d}.txt',
+        tull='penis.txt'
+        
+    script:
+        'makefiles.py'

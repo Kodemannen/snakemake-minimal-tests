@@ -1,0 +1,79 @@
+import numpy as np
+import os
+
+
+MAKE_ONE_FILE_FAIL = False
+
+
+rule all:
+    input:
+        "output/sum.txt"
+
+
+
+
+checkpoint inbetween:
+    # input:
+    #     "data/{case_id}.txt"
+    input:
+        expand("data/{case_id}.txt", case_id=["001", "002", "003"])
+
+    output:
+        "inbetween/{case_id}.txt"
+    run:
+
+        outputstring = ""
+
+        for i, inputfile in enumerate(input):
+
+            with open(input[i], 'r') as f:
+                letter = f.readline().strip()
+            
+            outputstring += letter
+
+            output_content = letter*2
+
+            print(str(inputfile))
+            print(str(output))
+            
+            with open(str(output), "w") as f:
+                f.write(output_content)
+
+
+        # # Read content in input file:
+        # with open(str(input), 'r') as f:
+        #     letter = f.readline().strip()
+
+        # output_content = letter*2
+
+
+        # if MAKE_ONE_FILE_FAIL:
+        #     if letter != 'c':
+        #         with open(str(output), "w") as f:
+        #             f.write(output_content)
+        
+        # else:
+        #     with open(str(output), "w") as f:
+        #         f.write(output_content)
+
+
+
+
+rule aggregate:
+    input:
+        expand("inbetween/{case_id}.txt", case_id=["001", "002", "003"]),
+
+    output:
+        "output/sum.txt"
+    run:
+
+        outputstring=''
+
+        for filepath in input:
+            with open(filepath, 'r') as f:
+                content = f.readline()
+
+            outputstring += content
+
+        shell("echo {outputstring} >> {output}")
+

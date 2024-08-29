@@ -1,0 +1,17 @@
+
+
+
+datasets = ['A', 'B']
+
+rule all:
+    input:
+        expand('output/lok{d}.txt', d=datasets)
+
+rule makefiles:
+    output:
+        lok='output/lok{d}.txt',
+    log:
+        out="logs/{d}_log.log",
+        err="logs/{d}_log.err"
+    script:
+        'somescript.py'

@@ -1,0 +1,121 @@
+
+
+
+# # a target rule to define the desired final output
+# rule all:
+#     input:
+#         "aggregated/a.txt",
+#         "aggregated/b.txt"
+
+
+# # the checkpoint that shall trigger re-evaluation of the DAG
+# checkpoint somestep:
+#     input:
+#         "samples/{case_id}.txt"
+#     output:
+#         "somestep/{case_id}.txt"
+#     shell:
+#         # simulate some output value
+#         "echo {wildcards.case_id} > somestep/{wildcards.case_id}.txt"
+
+
+# # intermediate rule
+# rule intermediate:
+#     input:
+#         "somestep/{case_id}.txt"
+#     output:
+#         "post/{case_id}.txt"
+#     shell:
+#         "touch {output}"
+
+
+# # alternative intermediate rule
+# rule alt_intermediate:
+#     input:
+#         "somestep/{case_id}.txt"
+#     output:
+#         "alt/{case_id}.txt"
+#     shell:
+#         "touch {output}"
+
+
+# # input function for the rule aggregate
+# def aggregate_input(wildcards):
+#     # decision based on content of output file
+#     # Important: use the method open() of the returned file!
+#     # This way, Snakemake is able to automatically download the file if it is generated in
+#     # a cloud environment without a shared filesystem.
+#     print(checkpoints.somestep.get(case_id=wildcards.case_id))
+
+#     with checkpoints.somestep.get(case_id=wildcards.case_id).output[0].open() as f:
+#         if f.read().strip() == "a":
+#             return "post/{case_id}.txt"
+#         else:
+#             return "alt/{case_id}.txt"
+
+
+# rule aggregate:
+#     input:
+#         aggregate_input
+#     output:
+#         "aggregated/{case_id}.txt"
+#     shell:
+#         "touch {output}"
+
+
+
+
+
+
+OUTDIR = "first_directory"
+SNDDIR = "second_directory"
+
+
+def get_file_names(wildcards):
+
+    ck_output = checkpoints.make_some_files.get(**wildcards).output[0]
+    SMP, = glob_wildcards(os.path.join(ck_output, "{sample}.txt"))
+
+    return expand(os.path.join(ck_output, "{SAMPLE}.txt"), SAMPLE=SMP)
+
+
+
+def dup_file_names(wildcards):
+
+    du_output = checkpoints.make_some_files.get(**wildcards).output[0]
+    SMPLS, = glob_wildcards(os.path.join(du_output, "{smpl}.txt"))
+
+    return expand(os.path.join(SNDDIR, "{SM}.tsv"), SM=SMPLS)
+
+
+
+rule all:
+    input: 
+        #get_file_names,
+        dup_file_names,
+
+
+
+checkpoint make_some_files:
+    output:
+        directory(OUTDIR)
+    shell:
+        """
+        mkdir {output};
+	N=$(((RANDOM%10)+1));
+        for D in $(seq $N); do
+            touch {output}/$RANDOM.txt
+        done
+        """
+
+
+rule duplicate:
+    input:
+        get_file_names
+    output:
+        os.path.join(SNDDIR, "{SAMPLE}.tsv")
+    shell:
+        """
+        touch {output}
+        """
+

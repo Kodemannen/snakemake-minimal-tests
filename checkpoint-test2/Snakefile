@@ -1,0 +1,120 @@
+from pathlib import Path
+
+# Make input files:
+inputfiles = [Path(f"input/{i}.txt") for i in range(10)]
+Path("input").mkdir(exist_ok=True)
+for f in inputfiles:
+    f.touch()
+
+
+
+def get_successes(wildcards):
+    ck_output = checkpoints.process1.get(**wildcards).output[0]
+    successes, = glob_wildcards(os.path.join(ck_output, "{num}.txt")) 
+    # return [expand(os.path.join(ck_output, "{num}.txt"), num=successes),
+    #         expand("output2/{num}.txt", num=successes)]
+
+    return expand("output2/{num}.txt", num=successes)
+
+
+
+
+
+rule all:
+    input:
+        # "successes1.txt",
+        # "successes2.txt"
+        get_successes,
+
+
+
+
+# Keep only files with even numbers:
+checkpoint process1:
+    input:
+        inputfiles
+    output:
+        directory("output1")
+
+    run:
+        Path(output[0]).mkdir()
+
+        for f in input:
+            
+            num = int(Path(f).stem)
+        
+            if num % 2 == 0:
+                
+                ting = Path(output[0])/Path(f).name
+                with open(ting, "w") as out:
+                    out.write(str(num**2) + "\n")
+                
+
+rule process2:
+    input:
+        "output1/{num}.txt"
+    output:
+        "output2/{num}.txt"
+    run:
+        # shell("mkdir output2 -p")
+        with open(input[0], 'r') as f:
+            num = eval(f.readline().strip())
+        
+        with open(output[0], 'r') as f:
+            f.write(str(num)+"\n")
+            
+
+
+
+
+
+# take the totalsum
+# rule process3:
+#     input: "output2/{num}.txt"
+
+
+            
+# rule aggregate1:
+#     input:
+#         get_successes
+#     output:
+#         "successes1.txt"
+#     shell:
+#         '''
+#         ls {input} >> {output}
+#         '''
+
+
+
+
+# def get_successes2(wildcards):
+#     ck_output = checkpoints.process2.get(**wildcards).output[0]
+#     successes, = glob_wildcards("output2/{num2}.txt") 
+#     return expand("output2/{num2}.txt", num2=successes)
+#
+#
+# rule aggregate2:
+#     input:
+#         get_successes2
+#
+#     output:
+#         "successes2.txt"
+#     shell:
+#         '''
+#         ls {input} >> {output}
+#         '''
+#
+#
+# # Need to process individual files after aggregating
+# checkpoint process2:
+#     input:
+#         "output1/{num2}.txt"
+#     output:
+#         "output2/{num2}.txt"
+#         # directory("output2")
+#     shell:
+#         '''
+#         mkdir output2
+#         cp {input} {output}
+#         '''
+#
